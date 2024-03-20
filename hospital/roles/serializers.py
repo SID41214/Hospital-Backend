@@ -5,6 +5,15 @@ from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
 
 
+class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
+    @classmethod
+    def get_token(cls, user):
+        token = super().get_token(user)
+        token['username'] = user.username
+        token['is_doctor'] = user.is_doctor
+        token['is_admin'] = user.is_admin
+        token['is_active'] =user.is_active
+        return token
 
 
 
@@ -41,10 +50,30 @@ class DoctorProfileSerializer(serializers.ModelSerializer):
         fields=['department','hospital','status','is_verified']
         
         
+
+class UserProfileSerializer(serializers.Serializer):
+    doctor_profile =DoctorProfileSerializer(allow_null =True,required=False)
+    class Meta:
+        model=User
+        fields = ['first_name','last_name','username','email','avatar','doctor_profile']       
         
 
 
+class DoctorListSerializer(serializers.ModelSerializer):
+    doctor = DoctorProfileSerializer(source='doctors',many=True)
+    class Meta:
+        model = User
+        fields = ['first_name','last_name','username','email','doctor']
+        
+        
 
+class AdminSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['pk','username','first_name','last_name','email','is_active','is_admin','blocked','is_doctor','is_staff']
+
+
+    
 
 
 

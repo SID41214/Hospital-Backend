@@ -1,6 +1,46 @@
+from django.shortcuts import render
+from rest_framework.views import APIView
+from roles.serializers import UserProfileSerializer,UserRegisterSerializer,DoctorListSerializer,DoctorProfileSerializer,MyTokenObtainPairSerializer,AdminSerializer
+from roles.models import User,Doctor
+from rest_framework.response import Response
+from rest_framework import status
+from rest_framework.permissions import IsAuthenticated,IsAdminUser,AllowAny
+from rest_framework_simplejwt.views import TokenObtainPairView
+from rest_framework_simplejwt.authentication import JWTAuthentication
+from rest_framework.decorators import permission_classes
+from rest_framework.generics import ListAPIView
 
 
-
+class Registration(APIView):
+    def post(self,request,format=None):
+        serializer=UserRegisterSerializer(data=request.data)
+        if serializer.is_valid():
+            first_name=serializer.validated_data.get('first_name')
+            last_name=serializer.validated_data.get('last_name')
+            username=serializer.validated_data.get('username')
+            email=serializer.validated_data.get('email')
+            avatar=serializer.validated_data.get('avatar')
+            phone_number=serializer.validated_data.get('phone_number')
+            password=serializer.validated_data.get('password')
+            is_doctor=serializer.validated_data.get('is_doctor')
+            
+            user = User.objects.create_user(
+                first_name=first_name,
+                last_name=last_name,
+                username=username,
+                email=email,
+                password=password,
+                phone_number=phone_number,
+                is_doctor=is_doctor,
+            )
+            if 'avatar' in serializer.validated_data:
+                user.avatar = serializer.validated_data.get('avatar')
+                user.save()
+            if user.is_doctor:
+                Doctor.objects.create(user=user)   # pylint: disable=no-member
+                
+            return Response({'message': 'User created successfully'}, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
 
 
 
