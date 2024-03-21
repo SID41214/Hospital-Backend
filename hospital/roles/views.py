@@ -33,7 +33,7 @@ class Registration(APIView):
                 phone_number=phone_number,
                 is_doctor=is_doctor,
             )
-            if 'avatar' in serializer.validated_data:
+            if 'avatar'  in serializer.validated_data:
                 user.avatar = serializer.validated_data.get('avatar')
                 user.save()
             if user.is_doctor:
@@ -44,7 +44,14 @@ class Registration(APIView):
 
 
 
+class MyTokenObtainPairView(TokenObtainPairView):
+    serializer_class=MyTokenObtainPairSerializer
+    
 
+class UserProfileView(APIView):
+    authentication_classes=[JWTAuthentication]
+    permission_classes=[IsAuthenticated]
+    
 
 
 
