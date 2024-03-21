@@ -10,7 +10,7 @@ from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.decorators import permission_classes
 from rest_framework.generics import ListAPIView
 
-
+# ---------------------------------------------Registration-----------------------------------
 class Registration(APIView):
     def post(self,request,format=None):
         serializer=UserRegisterSerializer(data=request.data)
@@ -42,19 +42,102 @@ class Registration(APIView):
             return Response({'message': 'User created successfully'}, status=status.HTTP_201_CREATED)
         return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
 
-
+# -----------------------------------------Token ---------------------------------------------------------------
 
 class MyTokenObtainPairView(TokenObtainPairView):
     serializer_class=MyTokenObtainPairSerializer
     
-
+# ----------------------------------------------- User Profile View -------------------------------------------
 class UserProfileView(APIView):
     authentication_classes=[JWTAuthentication]
     permission_classes=[IsAuthenticated]
     
+    def get(self, request):
+        user = request.user
+
+        if user.is_doctor:
+            try:
+                doctor_profile = Doctor.objects.get(user=user) # pylint: disable=no-member
+                data = {
+                    'first_name': user.first_name,
+                    'last_name': user.last_name,
+                    'username': user.username,
+                    'email': user.email,
+                    'phone_number':user.phone_number,
+                    'is_doctor':user.is_doctor,
+                    'avatar':user.avatar,
+                    'doctor_profile': {
+                        'hospital': doctor_profile.hospital,
+                        'department': doctor_profile.department,
+                        'status':doctor_profile.status,
+                        'is_verified': doctor_profile.is_verified,
+                    }
+                }
+                return Response(data, status=status.HTTP_200_OK)
+            except Doctor.DoesNotExist: # pylint: disable=no-member
+                return Response({'detail': 'Doctor profile not found.'}, status=status.HTTP_404_NOT_FOUND)
+        else:
+            try:
+                user_serializer = UserProfileSerializer(user)
+                return Response(user_serializer.data, status=status.HTTP_200_OK)
+            except User.DoesNotExist: # pylint: disable=no-member
+                return Response({'detail': 'User profile not found.'}, status=status.HTTP_404_NOT_FOUND)
 
 
 
+    def patch(self, request):
+        try:
+            print(request.data)
+            user = request.user
+            if user.is_doctor:
+                doctor_profile = Doctor.objects.get(user=user) # pylint: disable=no-member
+                doctor_serializer = DoctorProfileSerializer(doctor_profile, data=request.data, partial=True)
+
+                if 'first_name' in request.data:
+                    user.first_name = request.data['first_name']
+                if 'last_name' in request.data:
+                    user.last_name = request.data['last_name']
+                user.save()  
+                  
+                if doctor_serializer.is_valid():
+                    doctor_serializer.save()
+                    return Response(doctor_serializer.data, status=status.HTTP_200_OK)
+                else:
+                    return Response(doctor_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            else:
+                user_profile = User.objects.get(id=request.user.id)
+                serializer = UserProfileSerializer(user_profile, data=request.data, partial=True)
+
+                if serializer.is_valid():
+                    serializer.save()
+                    return Response(serializer.data, status=status.HTTP_200_OK)
+
+                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        except User.DoesNotExist: # pylint: disable=no-member
+            return Response({'detail': 'User profile not found.'}, status=status.HTTP_404_NOT_FOUND)
+        except Doctor.DoesNotExist: # pylint: disable=no-member
+            return Response({'detail': 'Doctor profile not found.'}, status=status.HTTP_404_NOT_FOUND)
+
+
+
+
+    def delete(self, request):
+        user = request.user
+
+        if user.is_doctor:
+            try:
+                doctor_profile = Doctor.objects.get(user=user)  # pylint: disable=no-member
+                doctor_profile.delete()
+                return Response({'detail': 'Doctor profile deleted.'}, status=status.HTTP_204_NO_CONTENT)
+            except Doctor.DoesNotExist:  # pylint: disable=no-member
+                return Response({'detail': 'Doctor profile not found.'}, status=status.HTTP_404_NOT_FOUND)
+        else:
+            try:
+                user_profile = User.objects.get(id=user.id)
+                user_profile.delete()
+                return Response({'detail': 'User profile deleted.'}, status=status.HTTP_204_NO_CONTENT)
+            except User.DoesNotExist:  # pylint: disable=no-member
+                return Response({'detail': 'User profile not found.'}, status=status.HTTP_404_NOT_FOUND)
 
 
 
