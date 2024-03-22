@@ -9,8 +9,11 @@ from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.decorators import permission_classes
 from rest_framework.generics import ListAPIView
-
+from rest_framework import viewsets
 # ---------------------------------------------Registration-----------------------------------
+# class Registration(viewsets.ModelViewSet):
+#     queryset=User.objects.all()
+#     serializer_class= UserRegisterSerializer
 class Registration(APIView):
     def post(self,request,format=None):
         serializer=UserRegisterSerializer(data=request.data)

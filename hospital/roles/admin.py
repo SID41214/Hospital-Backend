@@ -8,7 +8,7 @@ class UserAdmin(admin.ModelAdmin):
 
 @admin.register(Doctor)
 class DoctorAdmin(admin.ModelAdmin):
-    list_display=['id','status']
+    list_display=['id','user','department','hospital','status']
 
 
 
