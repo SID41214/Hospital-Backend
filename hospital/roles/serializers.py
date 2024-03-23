@@ -15,6 +15,21 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
         token['is_active'] =user.is_active
         return token
 
+# class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
+#     @classmethod
+#     def get_token(cls, user):
+#         try:
+#             # Call the parent class method to get the token
+#             token = super().get_token(user)
+#             # Add custom claims to the token
+#             token['username'] = user.username
+#             token['is_doctor'] = user.is_doctor
+#             token['is_admin'] = user.is_admin
+#             token['is_active'] = user.is_active
+#             return token
+#         except AttributeError:
+#             # Handle cases where user object does not have expected attributes
+#             return None
 
 
 class UserRegisterSerializer(serializers.ModelSerializer):
@@ -63,7 +78,7 @@ class DoctorListSerializer(serializers.ModelSerializer):
     doctor = DoctorProfileSerializer(source='doctors',many=True)
     class Meta:
         model = User
-        fields = ['first_name','last_name','username','email','doctor']
+        fields = ['first_name','last_name','username','email','phone_number','avatar','doctor']
         
         
 

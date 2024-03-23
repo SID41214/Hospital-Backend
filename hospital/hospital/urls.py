@@ -11,6 +11,9 @@ from rest_framework_simplejwt.views import TokenObtainPairView,TokenRefreshView
 # router = DefaultRouter()
 # router.register('register',views.Registration,basename='register') 
 
+# router = DefaultRouter()
+# router.register('userslist',views.UserListView,basename='userslist') 
+
 
 
 

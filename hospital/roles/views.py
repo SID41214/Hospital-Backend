@@ -25,7 +25,7 @@ class Registration(APIView):
             avatar=serializer.validated_data.get('avatar')
             phone_number=serializer.validated_data.get('phone_number')
             password=serializer.validated_data.get('password')
-            is_doctor=serializer.validated_data.get('is_doctor')
+            is_doctor=serializer.validated_data.get('is_doctor',False)
             
             user = User.objects.create_user(
                 first_name=first_name,
@@ -47,10 +47,15 @@ class Registration(APIView):
 
 # -----------------------------------------Token ---------------------------------------------------------------
 
-class MyTokenObtainPairView(TokenObtainPairView):
+class MyTokenObtainPairView(TokenObtainPairView):  
     serializer_class=MyTokenObtainPairSerializer
     
 # ----------------------------------------------- User Profile View -------------------------------------------
+# class UserProfileView(viewsets.ModelViewSet):
+#     queryset=User.objects.all()
+#     serializer_class= UserRegisterSerializer
+
+
 class UserProfileView(APIView):
     authentication_classes=[JWTAuthentication]
     permission_classes=[IsAuthenticated]
@@ -180,8 +185,9 @@ class UserListView(ListAPIView):
     queryset = User.objects.all()
     serializer_class = UserProfileSerializer
 
-
-
+# class UserListView(viewsets.ModelViewSet):
+#     queryset = User.objects.all()
+#     serializer_class = UserProfileSerializer
 
 
 
