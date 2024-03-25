@@ -36,9 +36,9 @@ class Registration(APIView):
                 phone_number=phone_number,
                 is_doctor=is_doctor,
             )
-            if 'avatar'  in serializer.validated_data:
-                user.avatar = serializer.validated_data.get('avatar')
-                user.save()
+            # if 'avatar'  in serializer.validated_data:
+            #     user.avatar = serializer.validated_data.get('avatar')
+            #     user.save()
             if user.is_doctor:
                 Doctor.objects.create(user=user)   # pylint: disable=no-member
                 
