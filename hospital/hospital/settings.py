@@ -20,6 +20,7 @@ SECRET_KEY = 'django-insecure-&mf7s)fo=on)!#7@q(^7hs#w!b)b_ndfypt)9$*&oirko(%yod
 DEBUG = True
 
 ALLOWED_HOSTS = []
+AUTH_USER_MODEL = 'roles.User'
 
 
 # Application definition

@@ -3,7 +3,7 @@ from roles.models import User,Doctor
 
 @admin.register(User)
 class UserAdmin(admin.ModelAdmin):
-    list_display=['id','username','first_name','last_name','email','phone_number','is_doctor']
+    list_display=['id','username','first_name','last_name','email','phone_number','is_doctor','is_active']
     
 
 @admin.register(Doctor)
