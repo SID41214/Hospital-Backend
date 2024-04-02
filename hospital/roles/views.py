@@ -9,7 +9,7 @@ from rest_framework.permissions import IsAuthenticated,IsAdminUser,AllowAny
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.decorators import permission_classes
-from rest_framework.generics import ListAPIView
+from rest_framework.generics import ListAPIView,RetrieveUpdateDestroyAPIView
 from rest_framework import viewsets
 from django.db.models import Q
 # ---------------------------------------------Registration-----------------------------------
@@ -228,23 +228,30 @@ class UserDoctorView(APIView):
 #         except User.DoesNotExist:  # pylint: disable=no-member
 #             return Response({'detail': 'User not found.'}, status=status.HTTP_404_NOT_FOUND)
 
-class AdminView(ListAPIView):
+class AdminView(ListAPIView,RetrieveUpdateDestroyAPIView):
     permission_classes = [IsAdminUser]
     serializer_class = AdminSerializer
     queryset = User.objects.filter(is_admin=False)
 
-
-    def patch(self, request, pk):
-        try:
-            user = User.objects.get(id=pk)
-            print(user)
-            user.blocked = not user.blocked
+    
+    def get_queryset(self):
+        pk = self.kwargs.get('pk')
+        if pk is not None:
+            return User.objects.filter(id=pk)
+        return User.objects.filter(is_admin=False)    
+    
+    
+    # def patch(self, request, pk):
+    #     try:
+    #         user = User.objects.get(id=pk)
+    #         print(user)
+    #         user.blocked = not user.blocked
             
-            user.save()
-            serializer = AdminSerializer(user)
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        except User.DoesNotExist:
-            return Response({'detail': 'User not found.'}, status=status.HTTP_404_NOT_FOUND)
+    #         user.save()
+    #         serializer = AdminSerializer(user)
+    #         return Response(serializer.data, status=status.HTTP_200_OK)
+    #     except User.DoesNotExist:
+    #         return Response({'detail': 'User not found.'}, status=status.HTTP_404_NOT_FOUND)
         
 
 # ----------------List of users------------------

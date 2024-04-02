@@ -55,7 +55,7 @@ class UserRegisterSerializer(serializers.ModelSerializer):
     
     class Meta:
         model=User
-        fields = ['first_name','last_name','username','email', 'password','password2','phone_number','avatar','is_doctor']
+        fields = ['first_name','last_name','username','email', 'password','password2','phone_number','avatar','is_doctor','created_at']
         
         
     def validate(self,data):
@@ -63,7 +63,7 @@ class UserRegisterSerializer(serializers.ModelSerializer):
         email = data.get('email')
         password=data.get('password')
         password2=data.get('password2')
-        phone_number=data.get('phone_number')
+        phone_number=data.get('phone_number','')# Default to empty string if phone_number is None
         is_doctor=data.get('is_doctor')
         
         if password != password2:
@@ -72,9 +72,10 @@ class UserRegisterSerializer(serializers.ModelSerializer):
         if len(password)<8:
             raise serializers.ValidationError('Password contain aleast 8 characters')
         
-        if len(phone_number)<10:
+        # if len(phone_number)<10:
+        #     raise serializers.ValidationError('Phone number must be of length 10')
+        if len(phone_number) > 0 and len(phone_number) < 10:  # Only validate if phone_number is not empty
             raise serializers.ValidationError('Phone number must be of length 10')
-    
         return data
     
     def validate_email(self, value):
@@ -104,7 +105,7 @@ class UserListSerializer(serializers.ModelSerializer):
     doctors = DoctorProfileSerializer(many=True, read_only=True) # Use many=True to handle multiple doctors
     class Meta:
         model = User
-        fields = ['first_name','last_name','username','email','doctors']
+        fields = ['first_name','last_name','username','email','doctors','created_at','updated_at']
 
     def update(self, instance, validated_data):
         instance.first_name = validated_data.get('first_name', instance.first_name)
